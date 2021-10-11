@@ -3,6 +3,7 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using System;
 
 public class Parser : UdonSharpBehaviour
 {
@@ -11,15 +12,10 @@ public class Parser : UdonSharpBehaviour
 
     void Start()
     {
-        parse("たべたいものリスト␞2␞もの␟たべたさ␞␝蟹␟2␞唐揚げ␟1␞");
+        this.parse("たべたいものリスト␞2␞もの␟たべたさ␞␝蟹␟1␞唐揚げ␟255␜かいものリスト␞2␞もの␟個数␞␝調整豆乳 1L␟1␞唐揚げ␟1");
 
-        foreach (var file in result)
-        {
-            foreach (var row in file)
-            {
-                Debug.Log(string.Format("{0}, {1}", row[0], row[1]));
-            }
-        }
+        Debug.Log(this.getString("たべたいものリスト", 0, "もの"));
+        Debug.Log(string.Format("{0}を{1}つ", this.getString("かいものリスト", 0, "もの"), this.getString("かいものリスト", 0, "個数")));
     }
 
     public int parse(string input)
@@ -30,14 +26,12 @@ public class Parser : UdonSharpBehaviour
 
         for (int filenum = 0; filenum < files.Length; filenum++)
         {
-            string[] file = files[0].Split('␝'); // 0: Header, 1: Body
+            string[] file = files[filenum].Split('␝'); // 0: Header, 1: Body
 
             string[] header = file[0].Split('␞');
             filelist[filenum] = header[0];
             result[filenum] = new string[int.Parse(header[1]) + 1][];
             result[filenum][0] = header[2].Split('␟'); //0をそのままキー名にします
-
-            // string[] body = file[0].Split('␞');
 
             int cursor = 0;
             foreach (string row in file[1].Split('␞'))
@@ -51,5 +45,16 @@ public class Parser : UdonSharpBehaviour
 
         return 0;
     }
-    public string getString(int filenum, int row, string key) { return ""; }
+
+    public string getString(string filename, int row, string key)
+    {
+        row++;
+        int file = Array.IndexOf(filelist, filename);
+        if (file < 0 || row < 0 || result[file].Length < row) return "";
+
+        int col = Array.IndexOf(result[file][0], key);
+        if (col < 0) return "";
+
+        return result[file][row][col];
+    }
 }
