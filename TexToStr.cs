@@ -6,20 +6,21 @@ using VRC.Udon;
 
 public class TexToStr : UdonSharpBehaviour
 {
-    // public Texture2D inputTex;
-    public Texture2D output;
+    public Texture2D tmpTex;
+    public Texture2D outputTex;
     public string input;
     void Start()
     {
     }
 
     int i = 0;
-    void FixedUpdate()
+    void OnPostRender()
     {
         i++;
         if (i > 60)
         {
-            Debug.Log(this.decodeString(this.encodeString(input)));
+            // Debug.Log(this.decodeString(this.encodeString(input)));
+            Debug.Log(this.decodeString(fromCamera()));
             i = 0;
         }
     }
@@ -32,7 +33,7 @@ public class TexToStr : UdonSharpBehaviour
         for (int i = 0; i < input.Length; i++)
         {
 
-            Color col = new Color(0, 0, 0, 0.5F);
+            Color col = new Color(0, 0, 0, 1);
 
             for (int j = 0; j < 2; j++)
             {
@@ -93,11 +94,11 @@ public class TexToStr : UdonSharpBehaviour
                     col.b = 1.000F;
 
                 // Debug.Log(input[i] + "[" + j + "] " + (tmp & 0xFF).ToString("X") + " => " + col.ToString());
-                output.SetPixel(0, i * 2 + j, col);
+                outputTex.SetPixel(0, i * 2 + j, col);
             }
         }
-        output.Apply();
-        return output;
+        outputTex.Apply(false);
+        return outputTex;
     }
 
     public string decodeString(Texture2D inputTex)
@@ -109,6 +110,7 @@ public class TexToStr : UdonSharpBehaviour
         {
             for (int y = 0; y < 256; y += 2)
             {
+                res = 0;
                 for (int i = y; i <= y + 1; i++)
                 {
                     Color col = inputTex.GetPixel(x, i);
@@ -186,5 +188,11 @@ public class TexToStr : UdonSharpBehaviour
         }
 
         return output;
+    }
+
+    private Texture2D fromCamera() {
+        tmpTex.ReadPixels(new Rect(0, 0, 256, 256), 0, 0);
+        tmpTex.Apply(false); //RenderTextureじゃなくて普通のテクスチャに書き込む
+        return tmpTex;
     }
 }
