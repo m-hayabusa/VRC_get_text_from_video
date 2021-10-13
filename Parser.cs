@@ -1,4 +1,4 @@
-
+﻿
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -60,9 +60,10 @@ public class Parser : UdonSharpBehaviour
     }
     public string getString(string filename, int row, string key)
     {
+        if (filelist == null) return "";
         row++;
         int file = Array.IndexOf(filelist, filename);
-        if (file < 0 || row < 0 || result[file].Length < row) return "";
+        if (file < 0 || row < 0 || result[file].Length <= row) return "";
 
         int col = Array.IndexOf(result[file][0], key);
         if (col < 0) return "";
