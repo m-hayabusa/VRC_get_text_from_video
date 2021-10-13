@@ -8,7 +8,8 @@ public class TexToStr : UdonSharpBehaviour
 {
     public Texture2D tmpTex;
     public Texture2D outputTex;
-    public string input;
+
+    public Parser parser;
     void Start()
     {
     }
@@ -19,8 +20,16 @@ public class TexToStr : UdonSharpBehaviour
         i++;
         if (i > 60)
         {
+            string str = this.decodeString(fromCamera());
+            if (str != "")
+            {
+                Debug.Log(str);
+                parser.parse(str);
+                Debug.Log(parser.getString("たべたいものリスト", 0, "もの"));
+                // Debug.Log(string.Format("{0}を{1}つ", parser.getString("かいものリスト", 0, "もの"), parser.getString("かいものリスト", 0, "個数")));
+            }
             // Debug.Log(this.decodeString(this.encodeString(input)));
-            Debug.Log(this.decodeString(fromCamera()));
+            // Debug.Log(this.decodeString(fromCamera()));
             i = 0;
         }
     }
@@ -176,21 +185,23 @@ public class TexToStr : UdonSharpBehaviour
                     // Debug.Log("decode: "+ i + ": " + tmp.ToString("X"));
                 }
 
-                if (res == 0xFFFF) //U+FFFFは「存在しない」ことが保証されている 白埋めがFFFFになるので外に飛ぶ
+                if (res == 0xFFFF || res == 0x0000) //U+FFFFは「存在しない」ことが保証されている 白埋めがFFFFになるので外に飛ぶ 黒(NUL→おしり)がある時もそうする
                     return output;
                 output += (char)res;
             }
         }
 
-        if (res != '␀')
+        if (res != 0x0000) // おしりがNULじゃないなら
         {
-            //TODO: テクスチャ舐め終わった時に終端が␀でないなら、動画を次のフレームに送ってもう一枚読む
+            // VideoPlayer.frame++;
+            // 次フレームへ
         }
 
         return output;
     }
 
-    private Texture2D fromCamera() {
+    private Texture2D fromCamera()
+    {
         tmpTex.ReadPixels(new Rect(0, 0, 256, 256), 0, 0);
         tmpTex.Apply(false); //RenderTextureじゃなくて普通のテクスチャに書き込む
         return tmpTex;
