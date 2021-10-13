@@ -1,4 +1,4 @@
-﻿
+
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -28,18 +28,26 @@ public class Parser : UdonSharpBehaviour
         {
             string[] file = files[filenum].Split('␝'); // 0: Header, 1: Body
 
+            if (file.Length < 2) break;
+
             string[] header = file[0].Split('␞');
+
+            if (header.Length < 3) break;
+
             filelist[filenum] = header[0];
             result[filenum] = new string[int.Parse(header[1]) + 1][];
             result[filenum][0] = header[2].Split('␟'); //0をそのままキー名にします
 
-            int cursor = 0;
-            foreach (string row in file[1].Split('␞'))
+            // int cursor = 0;
+
+            string[] body = file[1].Split('␞');
+
+            for (int cursor = 0; cursor < int.Parse(header[1]); cursor++)
             {
+                string row = body[cursor];
                 if (row == "") break;
 
-                cursor++;  // 0はキー名が入る
-                result[filenum][cursor] = row.Split('␟');
+                result[filenum][cursor + 1] = row.Split('␟');
             }
         }
 
