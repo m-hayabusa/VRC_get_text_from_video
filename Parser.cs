@@ -1,4 +1,4 @@
-
+﻿
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -10,13 +10,6 @@ public class Parser : UdonSharpBehaviour
     private string[] filelist;
     private string[][][] result;
 
-    void Start()
-    {
-        this.parse("たべたいものリスト␞2␞もの␟たべたさ␞␝蟹␟1␞唐揚げ␟255␜かいものリスト␞2␞もの␟個数␞␝調整豆乳 1L␟1␞唐揚げ␟1");
-
-        Debug.Log(this.getString("たべたいものリスト", 0, "もの"));
-        Debug.Log(string.Format("{0}を{1}つ", this.getString("かいものリスト", 0, "もの"), this.getString("かいものリスト", 0, "個数")));
-    }
 
     public int parse(string input)
     {
