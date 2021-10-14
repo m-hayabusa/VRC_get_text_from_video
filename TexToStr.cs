@@ -8,40 +8,44 @@ public class TexToStr : UdonSharpBehaviour
 {
     public Texture2D tmpTex;
     public Texture2D outputTex;
-
     public Parser parser;
-    void Start()
+
+    private bool triggerCapture = false;
+    private bool isTmpTexReady = false, isParsed = false;
+
+    public override void OnVideoPlay()
     {
+        isTmpTexReady = false;
+        isParsed = false;
+        triggerCapture = true;
     }
 
-    int i = 0;
-    void OnPostRender()
+    public void OnPostRender()
     {
-        i++;
-        if (i > 60)
+        if (triggerCapture)
         {
-            string str = this.decodeString(fromCamera());
-            if (str != "")
-            {
-                Debug.Log(str);
-                parser.parse(str);
-                Debug.Log(parser.getString("たべたいものリスト", 0, "もの"));
-                // Debug.Log(string.Format("{0}を{1}つ", parser.getString("かいものリスト", 0, "もの"), parser.getString("かいものリスト", 0, "個数")));
-            }
-            // Debug.Log(this.decodeString(this.encodeString(input)));
-            // Debug.Log(this.decodeString(fromCamera()));
-            i = 0;
+            this.fromCamera();
+            triggerCapture = false;
+            isTmpTexReady = true;
+        };
+    }
+
+    public void Update()
+    {
+        if (isTmpTexReady && !isParsed)
+        {
+            string str = this.decodeString(tmpTex);
+            if (str != "") parser.parse(str);
+            isParsed = true;
         }
     }
 
     public Texture2D encodeString(string input)
     {
-        // string output = "";
         int tmp = 0;
 
         for (int i = 0; i < input.Length; i++)
         {
-
             Color col = new Color(0, 0, 0, 1);
 
             for (int j = 0; j < 2; j++)
@@ -102,7 +106,6 @@ public class TexToStr : UdonSharpBehaviour
                 else if (((tmp >> 6) & 0b11) == 0b11)
                     col.b = 1.000F;
 
-                // Debug.Log(input[i] + "[" + j + "] " + (tmp & 0xFF).ToString("X") + " => " + col.ToString());
                 outputTex.SetPixel(0, i * 2 + j, col);
             }
         }
@@ -181,8 +184,6 @@ public class TexToStr : UdonSharpBehaviour
                         res += tmp << 8;
                     else
                         res += tmp << 0;
-
-                    // Debug.Log("decode: "+ i + ": " + tmp.ToString("X"));
                 }
 
                 if (res == 0xFFFF || res == 0x0000) //U+FFFFは「存在しない」ことが保証されている 白埋めがFFFFになるので外に飛ぶ 黒(NUL→おしり)がある時もそうする
@@ -193,8 +194,8 @@ public class TexToStr : UdonSharpBehaviour
 
         if (res != 0x0000) // おしりがNULじゃないなら
         {
-            // VideoPlayer.frame++;
-            // 次フレームへ
+            // VideoPlayerController.setFrame(VideoPlayerController.getFrame++);
+            // 動画を次フレームへ送る のはいいんだけど、取得自体も次にレンダリングされたときにずれるのでいい感じにする必要がある
         }
 
         return output;
