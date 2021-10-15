@@ -1,4 +1,4 @@
-
+﻿
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -9,6 +9,7 @@ public class TexToStr : UdonSharpBehaviour
     public Texture2D tmpTex;
     public Texture2D outputTex;
     public Parser parser;
+    public VideoPlayerController video;
 
     private bool triggerCapture = false;
     private bool isTmpTexReady = false, isParsed = false;
@@ -30,13 +31,49 @@ public class TexToStr : UdonSharpBehaviour
         };
     }
 
+    private int retryCount = 0;
+    private int decodeIttr = 0;
+    private bool isDecoding = false;
+    private int decodeFrame = 0;
+    private string decodeResult = "";
+    private int decodeWait = 0;
     public void Update()
     {
-        if (isTmpTexReady && !isParsed)
+        if (isDecoding)
         {
-            string str = this.decodeString(tmpTex);
-            if (str != "") parser.parse(str);
-            isParsed = true;
+            decodeWait++;
+            if (decodeWait > 2)
+            {
+                if (decodeString(decodeIttr))
+                {
+                    Debug.Log("end decode");
+                    isDecoding = false;
+                    if (decodeResult != "")
+                    {
+                        parser.parse(decodeResult);
+                        isParsed = true;
+                    }
+                    else
+                        retryCount++;
+                }
+                else
+                {
+                    decodeIttr++;
+                    if (decodeIttr >= 256)
+                    {
+                        decodeIttr = 0;
+                        decodeFrame++;
+                    }
+                }
+                decodeWait = 0;
+            }
+        }
+
+        if (isTmpTexReady && !isParsed && retryCount < 10 && !isDecoding)
+        {
+            Debug.Log("start decode");
+            video.setFrame(decodeFrame);
+            isDecoding = true;
         }
     }
 
@@ -113,92 +150,82 @@ public class TexToStr : UdonSharpBehaviour
         return outputTex;
     }
 
-    public string decodeString(Texture2D inputTex)
+    public bool decodeString(int x)
     {
-        string output = "";
         int res = 0;
 
-        for (int x = 0; x < 256; x++)
+        for (int y = 0; y < 256; y += 2)
         {
-            for (int y = 0; y < 256; y += 2)
+            res = 0;
+            for (int i = y; i <= y + 1; i++)
             {
-                res = 0;
-                for (int i = y; i <= y + 1; i++)
-                {
-                    Color col = inputTex.GetPixel(x, i);
+                Color col = tmpTex.GetPixel(x, i);
 
-                    int tmp = 0;
+                int tmp = 0;
 
-                    if (col.r < 0.125)
-                        tmp += 0b00000000;
-                    else if (col.r < 0.250)
-                        tmp += 0b00000001;
-                    else if (col.r < 0.375)
-                        tmp += 0b00000010;
-                    else if (col.r < 0.500)
-                        tmp += 0b00000011;
-                    else if (col.r < 0.625)
-                        tmp += 0b00000100;
-                    else if (col.r < 0.750)
-                        tmp += 0b00000101;
-                    else if (col.r < 0.875)
-                        tmp += 0b00000110;
-                    else
-                        tmp += 0b00000111;
+                if (col.r < 0.125)
+                    tmp += 0b00000000;
+                else if (col.r < 0.250)
+                    tmp += 0b00000001;
+                else if (col.r < 0.375)
+                    tmp += 0b00000010;
+                else if (col.r < 0.500)
+                    tmp += 0b00000011;
+                else if (col.r < 0.625)
+                    tmp += 0b00000100;
+                else if (col.r < 0.750)
+                    tmp += 0b00000101;
+                else if (col.r < 0.875)
+                    tmp += 0b00000110;
+                else
+                    tmp += 0b00000111;
 
-                    if (col.g < 0.125)
-                        tmp += 0b00000000;
-                    else if (col.g < 0.250)
-                        tmp += 0b00001000;
-                    else if (col.g < 0.375)
-                        tmp += 0b00010000;
-                    else if (col.g < 0.500)
-                        tmp += 0b00011000;
-                    else if (col.g < 0.625)
-                        tmp += 0b00100000;
-                    else if (col.g < 0.750)
-                        tmp += 0b00101000;
-                    else if (col.g < 0.875)
-                        tmp += 0b00110000;
-                    else
-                        tmp += 0b00111000;
+                if (col.g < 0.125)
+                    tmp += 0b00000000;
+                else if (col.g < 0.250)
+                    tmp += 0b00001000;
+                else if (col.g < 0.375)
+                    tmp += 0b00010000;
+                else if (col.g < 0.500)
+                    tmp += 0b00011000;
+                else if (col.g < 0.625)
+                    tmp += 0b00100000;
+                else if (col.g < 0.750)
+                    tmp += 0b00101000;
+                else if (col.g < 0.875)
+                    tmp += 0b00110000;
+                else
+                    tmp += 0b00111000;
 
-                    if (col.b < 0.125)
-                        tmp += 0b00000000;
-                    else if (col.b < 0.250)
-                        tmp += 0b01000000;
-                    else if (col.b < 0.375)
-                        tmp += 0b10000000;
-                    else if (col.b < 0.500)
-                        tmp += 0b11000000;
-                    else if (col.b < 0.625)
-                        tmp += 0b00000000;
-                    else if (col.b < 0.750)
-                        tmp += 0b01000000;
-                    else if (col.b < 0.875)
-                        tmp += 0b10000000;
-                    else
-                        tmp += 0b11000000;
+                if (col.b < 0.125)
+                    tmp += 0b00000000;
+                else if (col.b < 0.250)
+                    tmp += 0b01000000;
+                else if (col.b < 0.375)
+                    tmp += 0b10000000;
+                else if (col.b < 0.500)
+                    tmp += 0b11000000;
+                else if (col.b < 0.625)
+                    tmp += 0b00000000;
+                else if (col.b < 0.750)
+                    tmp += 0b01000000;
+                else if (col.b < 0.875)
+                    tmp += 0b10000000;
+                else
+                    tmp += 0b11000000;
 
-                    if (i % 2 == 0)
-                        res += tmp << 8;
-                    else
-                        res += tmp << 0;
-                }
-
-                if (res == 0xFFFF || res == 0x0000) //U+FFFFは「存在しない」ことが保証されている 白埋めがFFFFになるので外に飛ぶ 黒(NUL→おしり)がある時もそうする
-                    return output;
-                output += (char)res;
+                if (i % 2 == 0)
+                    res += tmp << 8;
+                else
+                    res += tmp << 0;
             }
+
+            if (res == 0xFFFF || res == 0x0000) //U+FFFFは「存在しない」ことが保証されている 白埋めがFFFFになるので外に飛ぶ 黒(NUL→おしり)がある時もそうする
+                return true;
+            decodeResult += (char)res;
         }
 
-        if (res != 0x0000) // おしりがNULじゃないなら
-        {
-            // VideoPlayerController.setFrame(VideoPlayerController.getFrame++);
-            // 動画を次フレームへ送る のはいいんだけど、取得自体も次にレンダリングされたときにずれるのでいい感じにする必要がある
-        }
-
-        return output;
+        return false;
     }
 
     private Texture2D fromCamera()
