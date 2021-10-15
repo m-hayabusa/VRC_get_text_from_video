@@ -20,7 +20,7 @@ public class VideoPlayerController : UdonSharpBehaviour
         // unityVideoPlayer.Pause();
         // unityVideoPlayer.SetTime(frame);
 
-        this.OnVideoStart();
+        this.OnVideoReady();
     }
 
     public int getFrame()
@@ -28,11 +28,11 @@ public class VideoPlayerController : UdonSharpBehaviour
         return frame;
     }
 
-    public override void OnVideoStart()
+    public override void OnVideoReady()
     {
         unityVideoPlayer.Pause();
         unityVideoPlayer.SetTime(frame);
 
-        receiver.OnVideoPlay();
+        receiver.OnVideoReady();
     }
 }

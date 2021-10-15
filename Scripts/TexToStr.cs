@@ -1,4 +1,4 @@
-﻿
+
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -13,7 +13,7 @@ public class TexToStr : UdonSharpBehaviour
     private bool triggerCapture = false;
     private bool isTmpTexReady = false, isParsed = false;
 
-    public override void OnVideoPlay()
+    public override void OnVideoReady()
     {
         isTmpTexReady = false;
         isParsed = false;
