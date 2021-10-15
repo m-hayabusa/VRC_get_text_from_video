@@ -60,13 +60,13 @@ public class Parser : UdonSharpBehaviour
     }
     public string getString(string filename, int row, string key)
     {
-        if (filelist == null) return "";
+        if (filelist == null) return null;
         row++;
         int file = Array.IndexOf(filelist, filename);
-        if (file < 0 || row < 0 || result[file].Length <= row) return "";
+        if (file < 0 || row < 0 || result[file].Length <= row) return null;
 
         int col = Array.IndexOf(result[file][0], key);
-        if (col < 0) return "";
+        if (col < 0) return null;
 
         return result[file][row][col];
     }
