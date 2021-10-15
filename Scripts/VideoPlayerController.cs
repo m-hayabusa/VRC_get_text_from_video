@@ -12,7 +12,12 @@ public class VideoPlayerController : UdonSharpBehaviour
     public TexToStr receiver;
     public VRCUnityVideoPlayer unityVideoPlayer;
     private int frame = 0;
+    public VRCUrl url;
 
+    public void Start()
+    {
+        reload();
+    }
     public void setFrame(int f)
     { // 1 fps想定
         frame = f;
@@ -26,6 +31,12 @@ public class VideoPlayerController : UdonSharpBehaviour
     public int getFrame()
     { // 1 fps想定
         return frame;
+    }
+
+    public void reload()
+    {
+        unityVideoPlayer.Stop();
+        unityVideoPlayer.PlayURL(url);
     }
 
     public override void OnVideoReady()

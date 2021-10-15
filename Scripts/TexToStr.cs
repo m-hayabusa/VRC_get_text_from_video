@@ -1,4 +1,4 @@
-﻿
+
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -75,6 +75,19 @@ public class TexToStr : UdonSharpBehaviour
             video.setFrame(decodeFrame);
             isDecoding = true;
         }
+    }
+
+    public void reload()
+    {
+        Debug.Log("Reloading..");
+        isTmpTexReady = false;
+        isParsed = false;
+        triggerCapture = false;
+        decodeResult = "";
+        decodeIttr = 0;
+        decodeFrame = 0;
+
+        video.reload();
     }
 
     public Texture2D encodeString(string input)
