@@ -1,4 +1,4 @@
-
+﻿
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -37,6 +37,8 @@ public class TexToStr : UdonSharpBehaviour
     private int decodeFrame = 0;
     private string decodeResult = "";
     private int decodeWait = 0;
+    private bool isReloading = false;
+
     public void Update()
     {
         if (isDecoding)
@@ -75,6 +77,12 @@ public class TexToStr : UdonSharpBehaviour
             video.setFrame(decodeFrame);
             isDecoding = true;
         }
+    }
+
+    public float getDecodeProgress()
+    {
+        if (decodeIttr > 0 && !isDecoding) return 1.0F;
+        return decodeIttr / 256F;
     }
 
     public void reload()
