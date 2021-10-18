@@ -12,22 +12,21 @@ public class TexToStr : UdonSharpBehaviour
     public VideoPlayerController video;
 
     private bool triggerCapture = false;
-    private bool isTmpTexReady = false, isParsed = false;
+    private bool isTmpTexReady = false, isParsed = false, isVideoReady = false;
 
     public override void OnVideoReady()
     {
-        isTmpTexReady = false;
-        isParsed = false;
-        triggerCapture = true;
+        isVideoReady = true;
     }
 
     public void OnPostRender()
     {
-        if (triggerCapture)
+        if (triggerCapture && isVideoReady)
         {
             this.fromCamera();
             triggerCapture = false;
             isTmpTexReady = true;
+            video.setFrame(decodeFrame++); //ここでシーク失敗してたときに同じフレーム読む気がする
         };
     }
 
@@ -37,11 +36,10 @@ public class TexToStr : UdonSharpBehaviour
     private int decodeFrame = 0;
     private string decodeResult = "";
     private int decodeWait = 0;
-    private bool isReloading = false;
 
     public void Update()
     {
-        if (isDecoding)
+        if (isDecoding && isTmpTexReady)
         {
             decodeWait++;
             if (decodeWait > 2)
@@ -63,8 +61,8 @@ public class TexToStr : UdonSharpBehaviour
                     decodeIttr++;
                     if (decodeIttr >= 256)
                     {
+                        capture();
                         decodeIttr = 0;
-                        decodeFrame++;
                     }
                 }
                 decodeWait = 0;
@@ -74,7 +72,6 @@ public class TexToStr : UdonSharpBehaviour
         if (isTmpTexReady && !isParsed && retryCount < 10 && !isDecoding)
         {
             Debug.Log("start decode");
-            video.setFrame(decodeFrame);
             isDecoding = true;
         }
     }
@@ -85,15 +82,25 @@ public class TexToStr : UdonSharpBehaviour
         return decodeIttr / 256F;
     }
 
+    void Start()
+    {
+        reload();
+    }
+
+    private void capture()
+    {
+        isTmpTexReady = false;
+        triggerCapture = true;
+    }
+
     public void reload()
     {
         Debug.Log("Reloading..");
-        isTmpTexReady = false;
+        capture();
         isParsed = false;
-        triggerCapture = false;
         decodeResult = "";
         decodeIttr = 0;
-        decodeFrame = 0;
+        decodeFrame = 1;
 
         video.reload();
     }

@@ -14,17 +14,9 @@ public class VideoPlayerController : UdonSharpBehaviour
     private int frame = 0;
     public VRCUrl url;
 
-    public void Start()
-    {
-        reload();
-    }
     public void setFrame(int f)
     { // 1 fps想定
         frame = f;
-
-        // unityVideoPlayer.Pause();
-        // unityVideoPlayer.SetTime(frame);
-
         this.OnVideoReady();
     }
 
