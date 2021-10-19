@@ -97,6 +97,7 @@ public class TexToStr : UdonSharpBehaviour
     {
         Debug.Log("Reloading..");
         capture();
+        isVideoReady = false;
         isParsed = false;
         decodeResult = "";
         decodeIttr = 0;
