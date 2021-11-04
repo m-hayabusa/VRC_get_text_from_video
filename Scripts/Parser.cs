@@ -9,6 +9,7 @@ public class Parser : UdonSharpBehaviour
 {
     private string[] filelist;
     private string[][][] result;
+    public bool isParseEnd = false;
 
     public int parse(string input)
     {
@@ -48,6 +49,7 @@ public class Parser : UdonSharpBehaviour
             }
         }
 
+        isParseEnd = true;
         return 0;
     }
 

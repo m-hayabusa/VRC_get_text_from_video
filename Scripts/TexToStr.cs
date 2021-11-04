@@ -99,6 +99,7 @@ public class TexToStr : UdonSharpBehaviour
         capture();
         isVideoReady = false;
         isParsed = false;
+        parser.isParseEnd = false;
         decodeResult = "";
         decodeIttr = 0;
         decodeFrame = 1;
