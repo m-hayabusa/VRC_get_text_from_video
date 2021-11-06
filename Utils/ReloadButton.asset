@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
-  m_Name: nsUtil_ReloadButton
+  m_Name: ReloadButton
   m_EditorClassIdentifier: 
   serializedUdonProgramAsset: {fileID: 11400000, guid: deed7a0643912e4459f0999ad2a79653,
     type: 2}
@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 4|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: Video2Str, Assembly-CSharp
+      Data: nekomimiStudio.video2String.Video2Str, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 

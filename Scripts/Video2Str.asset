@@ -183,7 +183,7 @@ MonoBehaviour:
       Data: 11|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: Parser, Assembly-CSharp
+      Data: nekomimiStudio.video2String.Parser, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -246,7 +246,7 @@ MonoBehaviour:
       Data: 15|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VideoPlayerController, Assembly-CSharp
+      Data: nekomimiStudio.video2String.VideoPlayerController, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 

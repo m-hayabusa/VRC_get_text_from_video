@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 4|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: Video2Str, Assembly-CSharp
+      Data: nekomimiStudio.video2String.Video2Str, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
