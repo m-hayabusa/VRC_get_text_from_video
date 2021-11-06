@@ -4,7 +4,7 @@ using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
-public class TexToStr : UdonSharpBehaviour
+public class Video2Str : UdonSharpBehaviour
 {
     public Texture2D tmpTex;
     public Texture2D outputTex;
