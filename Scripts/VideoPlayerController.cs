@@ -1,11 +1,7 @@
 ﻿
 using UdonSharp;
-using UnityEngine;
-using UnityEngine.Video;
 using VRC.SDKBase;
-using VRC.Udon;
 using VRC.SDK3.Video.Components;
-using VRC.SDK3.Video.Components.Base;
 
 public class VideoPlayerController : UdonSharpBehaviour
 {
