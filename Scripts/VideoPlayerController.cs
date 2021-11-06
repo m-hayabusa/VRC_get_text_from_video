@@ -9,7 +9,7 @@ using VRC.SDK3.Video.Components.Base;
 
 public class VideoPlayerController : UdonSharpBehaviour
 {
-    public TexToStr receiver;
+    public Video2Str receiver;
     public VRCUnityVideoPlayer unityVideoPlayer;
     private int frame = 0;
     public VRCUrl url;
