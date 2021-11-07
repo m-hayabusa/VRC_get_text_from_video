@@ -6,10 +6,12 @@ namespace nekomimiStudio.video2String
 {
     public class Video2Str : UdonSharpBehaviour
     {
+        private v2sConfig config;
         public Texture2D tmpTex;
         public Texture2D outputTex;
+        [HideInInspector]
         public Parser parser;
-        public VideoPlayerController video;
+        private VideoPlayerController video;
 
         private bool triggerCapture = false;
         private bool isTmpTexReady = false, isParsed = false, isVideoReady = false;
@@ -35,14 +37,14 @@ namespace nekomimiStudio.video2String
         private bool isDecoding = false;
         private int decodeFrame = 0;
         private string decodeResult = "";
-        private int decodeWait = 0;
+        private int decodeWaitCnt = 0;
 
         public void Update()
         {
             if (isDecoding && isTmpTexReady)
             {
-                decodeWait++;
-                if (decodeWait > 2)
+                decodeWaitCnt++;
+                if (decodeWaitCnt > config.decodeWait)
                 {
                     if (decodeString(decodeIttr))
                     {
@@ -65,7 +67,7 @@ namespace nekomimiStudio.video2String
                             decodeIttr = 0;
                         }
                     }
-                    decodeWait = 0;
+                    decodeWaitCnt = 0;
                 }
             }
 
@@ -84,7 +86,12 @@ namespace nekomimiStudio.video2String
 
         void Start()
         {
-            reload();
+            config = this.GetComponent<v2sConfig>();
+            parser = this.GetComponent<Parser>();
+            video = this.GetComponent<VideoPlayerController>();
+
+            if (config.isAutoStart)
+                reload();
         }
 
         private void capture()

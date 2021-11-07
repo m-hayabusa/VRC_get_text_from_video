@@ -1,16 +1,23 @@
 ﻿
 using UdonSharp;
-using VRC.SDKBase;
 using VRC.SDK3.Video.Components;
 
 namespace nekomimiStudio.video2String
 {
     public class VideoPlayerController : UdonSharpBehaviour
     {
-        public Video2Str receiver;
-        public VRCUnityVideoPlayer unityVideoPlayer;
+        private Video2Str video2Str;
+        private VRCUnityVideoPlayer unityVideoPlayer;
+        private v2sConfig config;
         private int frame = 0;
-        public VRCUrl url;
+        private bool inited = false;
+
+        private void init()
+        {
+            video2Str = this.GetComponent<Video2Str>();
+            config = this.GetComponent<v2sConfig>();
+            unityVideoPlayer = (VRCUnityVideoPlayer)(this.GetComponent(typeof(VRCUnityVideoPlayer)));
+        }
 
         public void setFrame(int f)
         { // 1 fps想定
@@ -25,8 +32,9 @@ namespace nekomimiStudio.video2String
 
         public void reload()
         {
+            if (!inited) init();
             unityVideoPlayer.Stop();
-            unityVideoPlayer.PlayURL(url);
+            unityVideoPlayer.PlayURL(config.url);
         }
 
         public override void OnVideoReady()
@@ -34,7 +42,7 @@ namespace nekomimiStudio.video2String
             unityVideoPlayer.Pause();
             unityVideoPlayer.SetTime(frame);
 
-            receiver.OnVideoReady();
+            video2Str.OnVideoReady();
         }
     }
 }

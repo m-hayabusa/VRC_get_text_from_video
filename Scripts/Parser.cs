@@ -1,5 +1,6 @@
 ﻿
 using UdonSharp;
+using UnityEngine;
 using System;
 
 namespace nekomimiStudio.video2String
@@ -8,6 +9,7 @@ namespace nekomimiStudio.video2String
     {
         private string[] filelist;
         private string[][][] result;
+        [HideInInspector]
         public bool isParseEnd = false;
 
         public int parse(string input)
