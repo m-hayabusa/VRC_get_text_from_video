@@ -39,17 +39,22 @@ public class kaimonolist : UdonSharpBehaviour
     public Video2Str video2Str; // Video2StrCore についている Video2Str をここに割りあてる
 
     private bool done = false;
-
+    private Parser parser;
+    
+    void Start(){
+        parser = video2Str.getParser();
+    }
+    
     void Update()
     {
         if (!done)
         {
             Debug.Log($"progress: {video2Str.getDecodeProgress()}");
 
-            if (video2Str.parser.isParseEnd)
+            if (parser.isDone())
             {
-                for (int i = 0; i < video2Str.parser.getLength("買い物リスト"); i++)
-                    Debug.Log($"{i}: {video2Str.parser.getString("買い物リスト", i, "name")}, {video2Str.parser.getString("買い物リスト", i, "comment")}");
+                for (int i = 0; i < parser.getLength("買い物リスト"); i++)
+                    Debug.Log($"{i}: {parser.getString("買い物リスト", i, "name")}, {parser.getString("買い物リスト", i, "comment")}");
                 done = true;
             }
         }

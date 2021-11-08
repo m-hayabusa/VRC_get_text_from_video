@@ -9,8 +9,17 @@ namespace nekomimiStudio.video2String
     {
         private string[] filelist;
         private string[][][] result;
-        [HideInInspector]
-        public bool isParseEnd = false;
+        private bool isParseEnd = false;
+
+        public bool isDone()
+        {
+            return isParseEnd;
+        }
+
+        public void reset()
+        {
+            isParseEnd = false;
+        }
 
         public int parse(string input)
         {

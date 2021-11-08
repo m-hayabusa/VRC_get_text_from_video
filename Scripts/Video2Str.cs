@@ -9,8 +9,7 @@ namespace nekomimiStudio.video2String
         private v2sConfig config;
         public Texture2D tmpTex;
         public Texture2D outputTex;
-        [HideInInspector]
-        public Parser parser;
+        private Parser parser;
         private VideoPlayerController video;
 
         private bool triggerCapture = false;
@@ -84,10 +83,20 @@ namespace nekomimiStudio.video2String
             return decodeIttr / 256F;
         }
 
+
+        public Parser getParser() {
+            if (parser == null) parser = this.GetComponent<Parser>();
+            return parser;
+        }
+        public v2sConfig getConfig() {
+            if (config == null) config = this.GetComponent<v2sConfig>();
+            return config;
+        }
+
         void Start()
         {
-            config = this.GetComponent<v2sConfig>();
-            parser = this.GetComponent<Parser>();
+            getParser();
+            getConfig();
             video = this.GetComponent<VideoPlayerController>();
 
             if (config.isAutoStart)
@@ -106,7 +115,7 @@ namespace nekomimiStudio.video2String
             capture();
             isVideoReady = false;
             isParsed = false;
-            parser.isParseEnd = false;
+            parser.reset();
             decodeResult = "";
             decodeIttr = 0;
             decodeFrame = 1;
