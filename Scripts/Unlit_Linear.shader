@@ -1,4 +1,4 @@
-﻿Shader "Unlit/Unlit_Linear"
+﻿Shader "nekomimiStudio/Unlit_Linear"
 {
     Properties
     {
@@ -14,35 +14,9 @@
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            // make fog work
-            #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
-
-            // https://github.com/Unity-Technologies/PostProcessing/blob/4e01e2e06bc2be4afeef24f5d9eb547c30391fcc/PostProcessing/Shaders/Colors.hlsl#L156
-            #define FLT_EPSILON 1.192092896e-07
-
-            float3 PositivePow(float3 base, float3 power)
-            {
-                return pow(max(abs(base), float3(FLT_EPSILON, FLT_EPSILON, FLT_EPSILON)), power);
-            }
             
-            half3 LinearToSRGB(half3 c)
-            {
-                half3 sRGBLo = c * 12.92;
-                half3 sRGBHi = (PositivePow(c, half3(1.0 / 2.4, 1.0 / 2.4, 1.0 / 2.4)) * 1.055) - 0.055;
-                half3 sRGB = (c <= 0.0031308) ? sRGBLo : sRGBHi;
-                return sRGB;
-            }
-
-            half3 SRGBToLinear(half3 c)
-            {
-                half3 linearRGBLo = c / 12.92;
-                half3 linearRGBHi = PositivePow((c + 0.055) / 1.055, half3(2.4, 2.4, 2.4));
-                half3 linearRGB = (c <= 0.04045) ? linearRGBLo : linearRGBHi;
-                return linearRGB;
-            }
-
             struct appdata
             {
                 float4 vertex : POSITION;
@@ -52,7 +26,6 @@
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
             };
 
@@ -64,18 +37,15 @@
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                // sample the texture
                 fixed4 col;
-                col.rgb = LinearToSRGB(tex2D(_MainTex, i.uv));
+                // sqrt(c): https://github.com/Unity-Technologies/PostProcessing/blob/4e01e2e06bc2be4afeef24f5d9eb547c30391fcc/PostProcessing/Shaders/Colors.hlsl#L156
+                col.rgb = sqrt(tex2D(_MainTex, i.uv));
                 col.a = 1;
-                // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;
             }
             ENDCG
