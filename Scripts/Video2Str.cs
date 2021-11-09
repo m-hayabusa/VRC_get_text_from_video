@@ -83,6 +83,9 @@ namespace nekomimiStudio.video2String
             return decodeIttr / 256F;
         }
 
+        public bool isLoading(){
+            return (triggerCapture || isVideoReady) && !isParsed;
+        }
 
         public Parser getParser() {
             if (parser == null) parser = this.GetComponent<Parser>();
