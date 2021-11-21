@@ -1,4 +1,4 @@
-﻿
+
 using UdonSharp;
 using UnityEngine;
 
@@ -83,15 +83,18 @@ namespace nekomimiStudio.video2String
             return decodeIttr / 256F;
         }
 
-        public bool isLoading(){
+        public bool isLoading()
+        {
             return (triggerCapture || isVideoReady) && !isParsed;
         }
 
-        public Parser getParser() {
+        public Parser getParser()
+        {
             if (parser == null) parser = this.GetComponent<Parser>();
             return parser;
         }
-        public v2sConfig getConfig() {
+        public v2sConfig getConfig()
+        {
             if (config == null) config = this.GetComponent<v2sConfig>();
             return config;
         }
