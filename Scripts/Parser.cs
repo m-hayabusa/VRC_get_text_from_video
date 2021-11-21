@@ -10,10 +10,15 @@ namespace nekomimiStudio.video2String
         private string[] filelist;
         private string[][][] result;
         private bool isParseEnd = false;
+        private int counter = 0;
 
         public bool isDone()
         {
             return isParseEnd;
+        }
+        public int getCounter() // これが増えたらもう一度パースされた ということになる
+        {
+            return counter;
         }
 
         public void reset()
@@ -60,6 +65,8 @@ namespace nekomimiStudio.video2String
             }
 
             isParseEnd = true;
+
+            counter++;
             return 0;
         }
 

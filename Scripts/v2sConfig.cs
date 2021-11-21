@@ -9,5 +9,6 @@ namespace nekomimiStudio.video2String
         public VRCUrl url;
         public bool isAutoStart = false;
         public int decodeWait = 2;
+        public bool isGlobal = false;
     }
 }

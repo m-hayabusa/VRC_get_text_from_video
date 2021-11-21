@@ -1,9 +1,12 @@
-
+﻿
 using UdonSharp;
 using UnityEngine;
+using VRC.SDKBase;
+using System;
 
 namespace nekomimiStudio.video2String
 {
+    [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class Video2Str : UdonSharpBehaviour
     {
         private v2sConfig config;
@@ -13,7 +16,7 @@ namespace nekomimiStudio.video2String
         private VideoPlayerController video;
 
         private bool triggerCapture = false;
-        private bool isTmpTexReady = false, isParsed = false, isVideoReady = false;
+        private bool isTmpTexReady = false, isParsed = false, isVideoReady = false, isRemoteLoading = false;
 
         public override void OnVideoReady()
         {
@@ -35,8 +38,49 @@ namespace nekomimiStudio.video2String
         private int decodeIttr = 0;
         private bool isDecoding = false;
         private int decodeFrame = 0;
+
+        [UdonSynced]
         private string decodeResult = "";
         private int decodeWaitCnt = 0;
+
+        private bool triggerDeSerialize;
+
+        [UdonSynced]
+        public string lastReload;
+
+        public void RemoteReloaded()
+        {
+            isRemoteLoading = false;
+            triggerDeSerialize = true;
+        }
+        public void RemoteReloading()
+        {
+            isRemoteLoading = true;
+        }
+
+        public override void OnOwnershipTransferred(VRCPlayerApi player)
+        {
+            if (Networking.GetOwner(this.gameObject) == player) isRemoteLoading = false;
+        }
+
+        public override void OnDeserialization()
+        {
+            if (triggerDeSerialize)
+            {
+                parser.reset();
+                parser.parse(decodeResult);
+                isParsed = true;
+            }
+        }
+
+        public override void OnPlayerJoined(VRCPlayerApi player)
+        {
+            if (config.isGlobal && parser.isDone() && Networking.IsOwner(Networking.LocalPlayer, this.gameObject))
+            {
+                RequestSerialization();
+                SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.All, "RemoteReloaded");
+            }
+        }
 
         public void Update()
         {
@@ -52,6 +96,13 @@ namespace nekomimiStudio.video2String
                         if (decodeResult != "")
                         {
                             parser.parse(decodeResult);
+
+                            if (config.isGlobal)
+                            {
+                                RequestSerialization();
+                                SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.All, "RemoteReloaded");
+                            }
+
                             isParsed = true;
                         }
                         else
@@ -85,7 +136,7 @@ namespace nekomimiStudio.video2String
 
         public bool isLoading()
         {
-            return (triggerCapture || isVideoReady) && !isParsed;
+            return (triggerCapture || isVideoReady || isRemoteLoading) && !isParsed;
         }
 
         public Parser getParser()
@@ -105,7 +156,7 @@ namespace nekomimiStudio.video2String
             getConfig();
             video = this.GetComponent<VideoPlayerController>();
 
-            if (config.isAutoStart)
+            if (config.isAutoStart && Networking.IsOwner(Networking.LocalPlayer, this.gameObject))
                 reload();
         }
 
@@ -117,6 +168,14 @@ namespace nekomimiStudio.video2String
 
         public void reload()
         {
+#if UNITY_ANDROID
+            // Oculus Questでは読み込めない: https://github.com/m-hayabusa/VRC_get_text_from_video/issues/1
+#else
+            Networking.SetOwner(Networking.LocalPlayer, this.gameObject);
+            SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.All, "RemoteReloading");
+
+            lastReload = DateTime.Now.ToLocalTime().ToString("yyyy/MM/dd HH:mm");
+
             Debug.Log("Reloading..");
             capture();
             isVideoReady = false;
@@ -127,6 +186,7 @@ namespace nekomimiStudio.video2String
             decodeFrame = 1;
 
             video.reload();
+#endif
         }
 
         public Texture2D encodeString(string input)
