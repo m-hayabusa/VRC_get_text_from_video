@@ -23,6 +23,9 @@ namespace nekomimiStudio.video2String
             isVideoReady = true;
         }
 
+        [SerializeField] private Shader LinearToSRGB;
+        [SerializeField] private Shader unlit;
+
         public void OnPostRender()
         {
             if (triggerCapture && isVideoReady)
@@ -32,6 +35,13 @@ namespace nekomimiStudio.video2String
                 isTmpTexReady = true;
                 video.setFrame(decodeFrame++); //ここでシーク失敗してたときに同じフレーム読む気がする
             };
+            if (triggeredGetTexture > 0)
+                triggeredGetTexture--;
+            if (triggeredGetTexture == 0)
+            {
+                this.GetComponent<Camera>().targetTexture = defaultTex;
+                this.transform.GetChild(0).GetComponent<MeshRenderer>().material.shader = LinearToSRGB;
+            }
         }
 
         private int retryCount = 0;
@@ -84,6 +94,7 @@ namespace nekomimiStudio.video2String
 
         public void Update()
         {
+            _GetTexture();
             if (isDecoding && isTmpTexReady)
             {
                 decodeWaitCnt++;
@@ -128,6 +139,43 @@ namespace nekomimiStudio.video2String
             }
         }
 
+        private int triggeredGetTexture = 0;
+        private RenderTexture[] GetTexture_Target = new RenderTexture[16];
+        private string[] GetTexture_file = new string[16];
+        private int[] GetTexture_id = new int[16];
+        private int GetTexture_done = 0;
+        private int GetTexture_head = 0;
+
+        public void GetTexture(RenderTexture target, string file, int id)
+        {
+            GetTexture_id[GetTexture_head] = id;
+            GetTexture_file[GetTexture_head] = file;
+            GetTexture_Target[GetTexture_head] = target;
+
+            GetTexture_head++;
+            if (GetTexture_head > 16) GetTexture_head = 0;
+        }
+
+        private bool _GetTexture()
+        {
+            if (GetTexture_done == GetTexture_head || !parser.isDone() || isLoading() || triggeredGetTexture > 0) { return false; }
+
+            RenderTexture target = GetTexture_Target[GetTexture_done];
+            string file = GetTexture_file[GetTexture_done];
+            int id = GetTexture_id[GetTexture_done];
+
+            video.setFrame(video.getLength() + int.Parse(parser.getString(file, id, "frame")) - 1);
+
+            this.transform.GetChild(0).GetComponent<MeshRenderer>().material.shader = unlit;
+            this.GetComponent<Camera>().targetTexture = target;
+            triggeredGetTexture = 10;
+
+            GetTexture_done++;
+            if (GetTexture_done > 16) GetTexture_done = 0;
+
+            return true;
+        }
+
         public float getDecodeProgress()
         {
             if (decodeIttr > 0 && !isDecoding) return 1.0F;
@@ -150,11 +198,13 @@ namespace nekomimiStudio.video2String
             return config;
         }
 
+        private RenderTexture defaultTex;
         void Start()
         {
             getParser();
             getConfig();
             video = this.GetComponent<VideoPlayerController>();
+            defaultTex = this.GetComponent<Camera>().targetTexture;
 
             if (config.isAutoStart && Networking.IsOwner(Networking.LocalPlayer, this.gameObject))
                 reload();

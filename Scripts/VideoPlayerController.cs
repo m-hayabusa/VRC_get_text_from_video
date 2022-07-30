@@ -30,6 +30,11 @@ namespace nekomimiStudio.video2String
             return frame;
         }
 
+        public int getLength()
+        {
+            return UnityEngine.Mathf.FloorToInt(unityVideoPlayer.GetDuration());
+        }
+
         public void reload()
         {
             if (!inited) init();
