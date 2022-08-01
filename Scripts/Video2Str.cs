@@ -206,7 +206,7 @@ namespace nekomimiStudio.video2String
             video = this.GetComponent<VideoPlayerController>();
             defaultTex = this.GetComponent<Camera>().targetTexture;
 
-            if (config.isAutoStart && Networking.IsOwner(Networking.LocalPlayer, this.gameObject))
+            if (config.isAutoStart && (config.isGlobal ? Networking.IsOwner(Networking.LocalPlayer, this.gameObject) : true))
                 reload();
         }
 
