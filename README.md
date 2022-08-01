@@ -1,6 +1,6 @@
 # VRC_get_text_from_video
 ## これは
-VRChatで文字列を動画から読み出すためのツールです
+VRChatで文字列と画像を動画から読み出すためのツールです
 [m-hayabusa/send_text_to_vrc](https://github.com/m-hayabusa/send_text_to_vrc) と組み合わせて使います
 
 * VRCSDK3-WORLD-2021.09.30.16.18_Public
@@ -13,12 +13,16 @@ VRChatで文字列を動画から読み出すためのツールです
 import * as send_text_to_vrc from "send_text_to_vrc";
 
 const files = [];
-const file = new send_text_to_vrc.File("買い物リスト", ["name", "comment"]);
 
-file.push(["エビフライ", "1つ"]);
-file.push(["卵", "1パック"]);
+const table = new send_text_to_vrc.File("list", ["name", "comment"]);
+table.push(["エビフライ", "1つ"]);
+table.push(["卵", "1パック"]);
+files.push(table);
 
-files.push(file);
+const images = new send_text_to_vrc.Images("img");
+images.push("エビフライの画像", "./ebifly.png");
+images.push("卵の画像", "./egg.png");
+files.push(images);
 
 send_text_to_vrc.publish(files, "./kaimonolist.webm");
 // この後、生成された kaimonolist.webm をhttps経由でアクセスできるようにする必要があります
@@ -26,7 +30,7 @@ send_text_to_vrc.publish(files, "./kaimonolist.webm");
 
 
 ### U#側:
-* Video2StrCore.prefab を Sceneに追加
+* Video2StrCore.prefab を Scene に追加
 * Video2StrCore についている v2sConfig.Url に、上記 kaimonolist.webm へのURLを入れておく
 
 ```csharp
@@ -40,6 +44,7 @@ public class kaimonolist : UdonSharpBehaviour
 
     private bool done = false;
     private Parser parser;
+    [SerializeField] private RenderTexture rTex[];
     
     void Start(){
         parser = video2Str.getParser();
@@ -53,8 +58,12 @@ public class kaimonolist : UdonSharpBehaviour
 
             if (parser.isDone())
             {
-                for (int i = 0; i < parser.getLength("買い物リスト"); i++)
-                    Debug.Log($"{i}: {parser.getString("買い物リスト", i, "name")}, {parser.getString("買い物リスト", i, "comment")}");
+                for (int i = 0; i < parser.getLength("list"); i++)
+                    Debug.Log($"{i}: {parser.getString("list", i, "name")}, {parser.getString("list", i, "comment")}");
+
+                for (int i = 0; i < parser.getLength("img"); i++)
+                    video2Str.GetTexture(rTex[i], "img", i);
+
                 done = true;
             }
         }
