@@ -1,4 +1,4 @@
-
+﻿
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -35,7 +35,7 @@ namespace nekomimiStudio.video2String
                 isTmpTexReady = true;
                 video.setFrame(decodeFrame++); //ここでシーク失敗してたときに同じフレーム読む気がする
             };
-            if (triggeredGetTexture > 0)
+            if (triggeredGetTexture > 0 && video.isReady())
                 triggeredGetTexture--;
             if (triggeredGetTexture == 0)
             {
@@ -175,7 +175,7 @@ namespace nekomimiStudio.video2String
 
             this.transform.GetChild(0).GetComponent<MeshRenderer>().material.shader = unlit;
             this.GetComponent<Camera>().targetTexture = target;
-            triggeredGetTexture = 10;
+            triggeredGetTexture = 2;
 
             GetTexture_head++;
             if (GetTexture_head == GetTexture_BUF) GetTexture_head = 0;

@@ -19,6 +19,10 @@ namespace nekomimiStudio.video2String
             unityVideoPlayer = (VRCUnityVideoPlayer)(this.GetComponent(typeof(VRCUnityVideoPlayer)));
         }
 
+        public bool isReady(){
+            return unityVideoPlayer.IsReady && unityVideoPlayer.GetTime() == frame;
+        }
+
         public void setFrame(int f)
         { // 1 fps想定
             frame = f;
