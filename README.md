@@ -44,7 +44,7 @@ public class kaimonolist : UdonSharpBehaviour
 
     private bool done = false;
     private Parser parser;
-    [SerializeField] private RenderTexture rTex[];
+    [SerializeField] private RenderTexture[] rTex;
     
     void Start(){
         parser = video2Str.getParser();
@@ -61,8 +61,10 @@ public class kaimonolist : UdonSharpBehaviour
                 for (int i = 0; i < parser.getLength("list"); i++)
                     Debug.Log($"{i}: {parser.getString("list", i, "name")}, {parser.getString("list", i, "comment")}");
 
-                for (int i = 0; i < parser.getLength("img"); i++)
+                for (int i = 0; i < parser.getLength("img"); i++) {
+                    Debug.Log(parser.getString("img", i, "filename"));
                     video2Str.GetTexture(rTex[i], "img", i);
+                }
 
                 done = true;
             }
