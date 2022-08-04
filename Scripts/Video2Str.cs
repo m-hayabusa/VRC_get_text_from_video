@@ -1,4 +1,4 @@
-﻿
+
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -139,30 +139,37 @@ namespace nekomimiStudio.video2String
             }
         }
 
+        private const int GetTexture_BUF = 16;
         private int triggeredGetTexture = 0;
-        private RenderTexture[] GetTexture_Target = new RenderTexture[16];
-        private string[] GetTexture_file = new string[16];
-        private int[] GetTexture_id = new int[16];
-        private int GetTexture_done = 0;
+        private RenderTexture[] GetTexture_Target = new RenderTexture[GetTexture_BUF];
+        private string[] GetTexture_file = new string[GetTexture_BUF];
+        private int[] GetTexture_id = new int[GetTexture_BUF];
         private int GetTexture_head = 0;
+        private int GetTexture_tail = 0;
 
-        public void GetTexture(RenderTexture target, string file, int id)
+        public bool GetTexture(RenderTexture target, string file, int id)
         {
-            GetTexture_id[GetTexture_head] = id;
-            GetTexture_file[GetTexture_head] = file;
-            GetTexture_Target[GetTexture_head] = target;
+            Debug.Log($"en {id}, {GetTexture_head}, {GetTexture_tail}");
+            if (GetTexture_head == (GetTexture_tail + 1) % GetTexture_BUF)
+                return false;
 
-            GetTexture_head++;
-            if (GetTexture_head > 16) GetTexture_head = 0;
+            GetTexture_id[GetTexture_tail] = id;
+            GetTexture_file[GetTexture_tail] = file;
+            GetTexture_Target[GetTexture_tail] = target;
+
+            GetTexture_tail++;
+            if (GetTexture_tail == GetTexture_BUF) GetTexture_tail = 0;
+            return true;
         }
 
         private bool _GetTexture()
         {
-            if (GetTexture_done == GetTexture_head || !parser.isDone() || isLoading() || triggeredGetTexture > 0) { return false; }
+            if (GetTexture_head == GetTexture_tail || !parser.isDone() || isLoading() || triggeredGetTexture > 0) { return false; }
 
-            RenderTexture target = GetTexture_Target[GetTexture_done];
-            string file = GetTexture_file[GetTexture_done];
-            int id = GetTexture_id[GetTexture_done];
+            RenderTexture target = GetTexture_Target[GetTexture_head];
+            string file = GetTexture_file[GetTexture_head];
+            int id = GetTexture_id[GetTexture_head];
+            Debug.Log($"de {id}, {GetTexture_head}, {GetTexture_tail}");
 
             video.setFrame(video.getLength() + int.Parse(parser.getString(file, id, "frame")) - 1);
 
@@ -170,8 +177,8 @@ namespace nekomimiStudio.video2String
             this.GetComponent<Camera>().targetTexture = target;
             triggeredGetTexture = 10;
 
-            GetTexture_done++;
-            if (GetTexture_done > 16) GetTexture_done = 0;
+            GetTexture_head++;
+            if (GetTexture_head == GetTexture_BUF) GetTexture_head = 0;
 
             return true;
         }
