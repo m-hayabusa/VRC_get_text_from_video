@@ -44,7 +44,6 @@ namespace nekomimiStudio.video2String
             }
         }
 
-        private int retryCount = 0;
         private int decodeIttr = 0;
         private bool isDecoding = false;
         private int decodeFrame = 0;
@@ -117,7 +116,7 @@ namespace nekomimiStudio.video2String
                             isParsed = true;
                         }
                         else
-                            retryCount++;
+                            Debug.LogWarning("デコード失敗");
                     }
                     else
                     {
@@ -132,7 +131,7 @@ namespace nekomimiStudio.video2String
                 }
             }
 
-            if (isTmpTexReady && !isParsed && retryCount < 10 && !isDecoding)
+            if (isTmpTexReady && !isParsed && !isDecoding)
             {
                 Debug.Log("start decode");
                 isDecoding = true;
