@@ -1,12 +1,8 @@
-# VRC_get_text_from_video
+# nS videoParser (VRC_get_text_from_video)
 ## これは
 VRChatで文字列と画像を動画から読み出すためのツールです
 [m-hayabusa/send_text_to_vrc](https://github.com/m-hayabusa/send_text_to_vrc) と組み合わせて使います
 
-* VRCSDK3-WORLD-2021.09.30.16.18_Public
-* UdonSharp_v0.20.3
-
-で動作確認
 
 ### サーバー側: 
 ```javascript
@@ -30,8 +26,12 @@ send_text_to_vrc.publish(files, "./kaimonolist.webm");
 
 
 ### U#側:
-* Video2StrCore.prefab を Scene に追加
-* Video2StrCore についている v2sConfig.Url に、上記 kaimonolist.webm へのURLを入れておく
+1. このパッケージを導入
+    * おすすめ: `vpm add repo https://m-hayabusa.github.io/VRC_get_text_from_video/index.json` を実行して、VRChat CreatorCompanionから`nS videoParser`をプロジェクトに追加  
+      (`vpm`コマンドについては[CLI | VRChat Creator Companion: https://vcc.docs.vrchat.com/vpm/cli](https://vcc.docs.vrchat.com/vpm/cli)を参照)
+    * https://github.com/m-hayabusa/VRC_get_text_from_video/releases から最新の unitypackage をダウンロードして import
+2. Hierarchyを右クリック、 nsVideoParser を追加
+3. nsVideoParser についている v2sConfig.Url に、上記 kaimonolist.webm へのURLを入れておく
 
 ```csharp
 using UnityEngine;
@@ -40,7 +40,7 @@ using nekomimiStudio.video2String;
 
 public class kaimonolist : UdonSharpBehaviour
 {
-    public Video2Str video2Str; // Video2StrCore についている Video2Str をここに割りあてる
+    public Video2Str video2Str; // nsVideoParser についている Video2Str をここに割りあてる
 
     private bool done = false;
     private Parser parser;
