@@ -1,0 +1,17 @@
+{
+  "name": "studio.nekomimi.parsevideo",
+  "displayName": "nS videoParser",
+  "version": "1.0.0",
+  "description": "parses table and image from video.\nuse with https://github.com/m-hayabusa/send_text_to_vrc",
+  "gitDependencies": {},
+  "vpmDependencies": {
+    "com.vrchat.udonsharp": "1.1.6"
+  },
+  "legacyFolders": {},
+  "legacyFiles": {},
+  "author": {
+    "name": "mewl hayabusa",
+    "email": "mewl@mewl.me",
+    "url": "https://nekomimi.studio"
+  }
+}
