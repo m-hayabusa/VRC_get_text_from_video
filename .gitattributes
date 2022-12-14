@@ -1,0 +1,5 @@
+# anatawa12/git-vrc: A command line extension for git to reduce meaningless diff on git of VRC project.
+# https://github.com/anatawa12/git-vrc
+*.asset filter=vrc eol=lf text
+*.prefab filter=vrc eol=lf text
+*.unity filter=vrc eol=lf text
