@@ -1,7 +1,7 @@
 {
   "name": "studio.nekomimi.parsevideo",
   "displayName": "nS videoParser",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "parses table and image from video.\nuse with https://github.com/m-hayabusa/send_text_to_vrc",
   "gitDependencies": {},
   "vpmDependencies": {
