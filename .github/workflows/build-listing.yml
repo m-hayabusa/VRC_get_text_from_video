@@ -1,31 +1,29 @@
 name: Build Repo Listing
 
-on: 
+on:
   workflow_dispatch:
   workflow_run:
     workflows: [Build Release]
     types:
       - completed
   release:
-     types: [published, created, edited, unpublished, deleted, released]
+    types: [published, created, edited, unpublished, deleted, released]
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
-  pages: write
   id-token: write
-  
+
 # Allow one concurrent deployment
 concurrency:
-  group: "pages"
+  group: "repo"
   cancel-in-progress: true
-  
+
 env:
   listPublishDirectory: Website
   pathToCi: ci
 
 jobs:
-  
   build-listing:
     name: build-listing
     environment:
@@ -33,35 +31,67 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      
       - uses: actions/checkout@v3 # check out this repo
+
       - uses: actions/checkout@v3 # check out automation repo
         with:
           repository: vrchat-community/package-list-action
-          path: ${{env.pathToCi}}
+          path: ${{env.pathToCi}}/package-list-action
           clean: false # otherwise the local repo will no longer be checked out
-          
+
+      - uses: actions/checkout@v3
+        with:
+          repository: m-hayabusa/vpm-repo
+          path: ${{env.pathToCi}}/vpm-repo
+          clean: false
+
       - name: Restore Cache
         uses: actions/cache@v2
         with:
           path: |
-            ${{env.pathToCi}}/.nuke/temp
+            ${{env.pathToCi}}/package-list-action/.nuke/temp
             ~/.nuget/packages
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj') }}
-          
+
       - name: Build Package Version Listing
-        run: ${{env.pathToCi}}/build.cmd BuildRepoListing --root ${{env.pathToCi}} --list-publish-directory $GITHUB_WORKSPACE/${{env.listPublishDirectory}}
+        run: ${{env.pathToCi}}/package-list-action/build.cmd BuildRepoListing --root ${{env.pathToCi}}/package-list-action --list-publish-directory $GITHUB_WORKSPACE/${{env.listPublishDirectory}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
- 
-      - name: Setup Pages
-        uses: actions/configure-pages@v2
-        
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+
+      - uses: actions/setup-node@v3
         with:
-          path: ${{env.listPublishDirectory}}
-          
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+          node-version: 16
+
+      - name: Merge Package Version Listing
+        run: >
+          node -e '
+            const fs = require("fs");
+            const newpkg = JSON.parse(fs.readFileSync("${{github.workspace}}/${{env.listPublishDirectory}}/index.json"));
+            const basepkg = JSON.parse(fs.readFileSync("${{env.pathToCi}}/vpm-repo/index.json"));
+            basepkg.packages[Object.keys(newpkg.packages)[0]] = newpkg.packages[Object.keys(newpkg.packages)[0]];
+            fs.writeFileSync("${{env.pathToCi}}/vpm-repo/index.json", JSON.stringify(basepkg, undefined, "    "));
+          '
+
+      - name: Get version and name
+        run: >
+          node -e '
+            const fs = require("fs");
+            const newpkg = JSON.parse(fs.readFileSync("${{github.workspace}}/${{env.listPublishDirectory}}/index.json"));
+            const name = Object.keys(newpkg.packages)[0];
+            const version = Object.keys(newpkg.packages[name].versions)[0];
+            const displayName = newpkg.packages[name].versions[version].displayName;
+            console.log("package_version=" + version);
+            console.log("package_displayName=" + displayName);
+          ' >> $GITHUB_ENV
+
+      - name: Pushes to another repository
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+        with:
+          source-directory: ${{env.pathToCi}}/vpm-repo
+          destination-github-username: "m-hayabusa"
+          destination-repository-name: "vpm-repo"
+          user-email: actions@mewl.me
+          target-branch: main
+          commit-message: ${{env.package_displayName}} v${{env.package_version}}
