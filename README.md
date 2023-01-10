@@ -27,9 +27,9 @@ send_text_to_vrc.publish(files, "./kaimonolist.webm");
 
 ### U#側:
 1. このパッケージを導入
-    * おすすめ: `vpm add repo https://m-hayabusa.github.io/VRC_get_text_from_video/index.json` を実行して、VRChat CreatorCompanionから`nS videoParser`をプロジェクトに追加  
+    * `vpm add repo https://vpm.nekomimi.studio/index.json` を実行して、VRChat CreatorCompanionから`nS videoParser`をプロジェクトに追加  
       (`vpm`コマンドについては[CLI | VRChat Creator Companion: https://vcc.docs.vrchat.com/vpm/cli](https://vcc.docs.vrchat.com/vpm/cli)を参照)
-    * https://github.com/m-hayabusa/VRC_get_text_from_video/releases から最新の unitypackage をダウンロードして import
+    * https://vpm.nekomimi.studio/ から unitypackage をダウンロードして import
 2. Hierarchyを右クリック、 nsVideoParser を追加
 3. nsVideoParser についている v2sConfig.Url に、上記 kaimonolist.webm へのURLを入れておく
 
