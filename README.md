@@ -1,3 +1,5 @@
+もしあなたが新しくこれを導入しようとしているなら、 https://docs.vrchat.com/docs/string-loading で実装するべきです
+
 # nS videoParser (VRC_get_text_from_video)
 ## これは
 VRChatで文字列と画像を動画から読み出すためのツールです
